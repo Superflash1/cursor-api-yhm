@@ -8,8 +8,11 @@ services:
       - "3003:3000"
     env_file:
       - .env
+    environment:
+      - FRONTEND_PATH=/app/static
     volumes:
       - cursor-api-data:/app/data
+      - ./static:/app/static:ro
 
 volumes:
   cursor-api-data:
