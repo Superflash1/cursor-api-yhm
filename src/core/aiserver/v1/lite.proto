@@ -1,0 +1,715 @@
+syntax = "proto3";
+// @version: 1.6.35
+// @author: wisdgod <nav@wisdgod.com>
+// @license: MIT OR Apache-2.0
+package aiserver.v1;
+message CursorPosition { // .aiserver.v1.CursorPosition
+	int32 line = 1;
+	int32 column = 2;
+}
+message EnvironmentInfo { // .aiserver.v1.EnvironmentInfo
+}
+message SimplestRange { // .aiserver.v1.SimplestRange
+	int32 start_line = 1;
+	int32 end_line_inclusive = 2;
+}
+message SimpleRange { // .aiserver.v1.SimpleRange
+	int32 start_line_number = 1;
+	int32 start_column = 2;
+	int32 end_line_number_inclusive = 3;
+	int32 end_column = 4;
+}
+message LineRange { // .aiserver.v1.LineRange
+	int32 start_line_number = 1;
+	int32 end_line_number_inclusive = 2;
+}
+message CursorRange { // .aiserver.v1.CursorRange
+	CursorPosition start_position = 1;
+	CursorPosition end_position = 2;
+}
+message DetailedLine { // .aiserver.v1.DetailedLine
+	string text = 1;
+	float line_number = 2;
+	bool is_signature = 3;
+}
+message CodeBlock { // .aiserver.v1.CodeBlock
+	message Signatures { // .aiserver.v1.CodeBlock.Signatures
+		repeated CursorRange ranges = 1;
+	}
+	string relative_workspace_path = 1;
+	optional string file_contents = 2;
+	optional int32 file_contents_length = 9;
+	CursorRange range = 3;
+	string contents = 4;
+	Signatures signatures = 5;
+	optional string override_contents = 6;
+	optional string original_contents = 7;
+	repeated DetailedLine detailed_lines = 8;
+	FileGit file_git_context = 10;
+}
+message GitCommit { // .aiserver.v1.GitCommit
+	string commit = 1;
+	string author = 2;
+	string date = 3;
+	string message = 4;
+}
+message FileGit { // .aiserver.v1.FileGit
+	repeated GitCommit commits = 1;
+}
+message Diagnostic { // .aiserver.v1.Diagnostic
+	enum DiagnosticSeverity { // .aiserver.v1.Diagnostic.DiagnosticSeverity
+		DIAGNOSTIC_SEVERITY_UNSPECIFIED = 0;
+		DIAGNOSTIC_SEVERITY_ERROR = 1;
+		DIAGNOSTIC_SEVERITY_WARNING = 2;
+		DIAGNOSTIC_SEVERITY_INFORMATION = 3;
+		DIAGNOSTIC_SEVERITY_HINT = 4;
+	}
+	message RelatedInformation { // .aiserver.v1.Diagnostic.RelatedInformation
+		string message = 1;
+		CursorRange range = 2;
+	}
+	string message = 1;
+	CursorRange range = 2;
+	DiagnosticSeverity severity = 3;
+	repeated RelatedInformation related_information = 4;
+}
+message BM25Chunk { // .aiserver.v1.BM25Chunk
+	string content = 1;
+	SimplestRange range = 2;
+	int32 score = 3;
+	string relative_path = 4;
+}
+message CurrentFileInfo { // .aiserver.v1.CurrentFileInfo
+	string relative_workspace_path = 1;
+	string contents = 2;
+	bool rely_on_filesync = 18;
+	optional string sha_256_hash = 17;
+	repeated BM25Chunk top_chunks = 10;
+	int32 contents_start_at_line = 9;
+	CursorPosition cursor_position = 3;
+	repeated DataframeInfo dataframes = 4;
+	int32 total_number_of_lines = 8;
+	string language_id = 5;
+	CursorRange selection = 6;
+	optional int32 alternative_version_id = 11;
+	repeated Diagnostic diagnostics = 7;
+	optional int32 file_version = 14;
+	string workspace_root_path = 19;
+	optional string line_ending = 20;
+}
+message AzureState { // .aiserver.v1.AzureState
+}
+message ModelDetails { // .aiserver.v1.ModelDetails
+	optional string model_name = 1;
+	optional AzureState azure_state = 4;
+	optional bool enable_slow_pool = 5;
+	optional bool max_mode = 8;
+}
+message DataframeInfo { // .aiserver.v1.DataframeInfo
+	message Column { // .aiserver.v1.DataframeInfo.Column
+		string key = 1;
+		string type = 2;
+	}
+	string name = 1;
+	string shape = 2;
+	int32 data_dimensionality = 3;
+	repeated Column columns = 6;
+	int32 row_count = 7;
+	string index_column = 8;
+}
+message LinterError { // .aiserver.v1.LinterError
+	string message = 1;
+	CursorRange range = 2;
+	optional string source = 3;
+	repeated Diagnostic.RelatedInformation related_information = 4;
+	optional Diagnostic.DiagnosticSeverity severity = 5;
+}
+message LinterErrors { // .aiserver.v1.LinterErrors
+	string relative_workspace_path = 1;
+	repeated LinterError errors = 2;
+	string file_contents = 3;
+}
+message ExplicitContext { // .aiserver.v1.ExplicitContext
+	string context = 1;
+	optional string repo_context = 2;
+	optional string mode_specific_context = 4;
+}
+message ErrorDetails { // .aiserver.v1.ErrorDetails
+	enum Error { // .aiserver.v1.ErrorDetails.Error
+		ERROR_UNSPECIFIED = 0;
+		ERROR_BAD_API_KEY = 1;
+		ERROR_BAD_USER_API_KEY = 42;
+		ERROR_NOT_LOGGED_IN = 2;
+		ERROR_INVALID_AUTH_ID = 3;
+		ERROR_NOT_HIGH_ENOUGH_PERMISSIONS = 4;
+		ERROR_AGENT_REQUIRES_LOGIN = 18;
+		ERROR_BAD_MODEL_NAME = 5;
+		ERROR_NOT_FOUND = 39;
+		ERROR_DEPRECATED = 40;
+		ERROR_USER_NOT_FOUND = 6;
+		ERROR_FREE_USER_RATE_LIMIT_EXCEEDED = 7;
+		ERROR_PRO_USER_RATE_LIMIT_EXCEEDED = 8;
+		ERROR_FREE_USER_USAGE_LIMIT = 9;
+		ERROR_PRO_USER_USAGE_LIMIT = 10;
+		ERROR_RESOURCE_EXHAUSTED = 41;
+		ERROR_AUTH_TOKEN_NOT_FOUND = 11;
+		ERROR_AUTH_TOKEN_EXPIRED = 12;
+		ERROR_OPENAI = 13;
+		ERROR_OPENAI_RATE_LIMIT_EXCEEDED = 14;
+		ERROR_OPENAI_ACCOUNT_LIMIT_EXCEEDED = 15;
+		ERROR_TASK_UUID_NOT_FOUND = 16;
+		ERROR_TASK_NO_PERMISSIONS = 17;
+		ERROR_AGENT_ENGINE_NOT_FOUND = 19;
+		ERROR_MAX_TOKENS = 20;
+		ERROR_PRO_USER_ONLY = 23;
+		ERROR_API_KEY_NOT_SUPPORTED = 24;
+		ERROR_USER_ABORTED_REQUEST = 21;
+		ERROR_TIMEOUT = 25;
+		ERROR_GENERIC_RATE_LIMIT_EXCEEDED = 22;
+		ERROR_SLASH_EDIT_FILE_TOO_LONG = 26;
+		ERROR_FILE_UNSUPPORTED = 27;
+		ERROR_GPT_4_VISION_PREVIEW_RATE_LIMIT = 28;
+		ERROR_CUSTOM_MESSAGE = 29;
+		ERROR_OUTDATED_CLIENT = 30;
+		ERROR_CLAUDE_IMAGE_TOO_LARGE = 31;
+		ERROR_GITGRAPH_NOT_FOUND = 32;
+		ERROR_FILE_NOT_FOUND = 33;
+		ERROR_API_KEY_RATE_LIMIT = 34;
+		ERROR_DEBOUNCED = 35;
+		ERROR_BAD_REQUEST = 36;
+		ERROR_REPOSITORY_SERVICE_REPOSITORY_IS_NOT_INITIALIZED = 37;
+		ERROR_UNAUTHORIZED = 38;
+		ERROR_CONVERSATION_TOO_LONG = 43;
+		ERROR_USAGE_PRICING_REQUIRED = 44;
+		ERROR_USAGE_PRICING_REQUIRED_CHANGEABLE = 45;
+		ERROR_GITHUB_NO_USER_CREDENTIALS = 46;
+		ERROR_GITHUB_USER_NO_ACCESS = 47;
+		ERROR_GITHUB_APP_NO_ACCESS = 48;
+		ERROR_GITHUB_MULTIPLE_OWNERS = 49;
+		ERROR_RATE_LIMITED = 50;
+		ERROR_RATE_LIMITED_CHANGEABLE = 51;
+		ERROR_CUSTOM = 52;
+		ERROR_HOOKS_BLOCKED = 53;
+	}
+	Error error = 1;
+	CustomErrorDetails details = 2;
+	optional bool is_expected = 3;
+}
+message CustomErrorDetails { // .aiserver.v1.CustomErrorDetails
+	string title = 1;
+	string detail = 2;
+	map<string, string> additional_info = 7;
+}
+message ImageProto { // .aiserver.v1.ImageProto
+	message Dimension { // .aiserver.v1.ImageProto.Dimension
+		int32 width = 1;
+		int32 height = 2;
+	}
+	bytes data = 1;
+	Dimension dimension = 2;
+	string uuid = 3;
+}
+message ComposerExternalLink { // .aiserver.v1.ComposerExternalLink
+	string url = 1;
+	string uuid = 2;
+}
+message LspSubgraphPosition { // .aiserver.v1.LspSubgraphPosition
+	int32 line = 1;
+	int32 character = 2;
+}
+message LspSubgraphRange { // .aiserver.v1.LspSubgraphRange
+	int32 start_line = 1;
+	int32 start_character = 2;
+	int32 end_line = 3;
+	int32 end_character = 4;
+}
+message LspSubgraphContextItem { // .aiserver.v1.LspSubgraphContextItem
+	optional string uri = 1;
+	string type = 2;
+	string content = 3;
+	optional LspSubgraphRange range = 4;
+}
+message LspSubgraphFullContext { // .aiserver.v1.LspSubgraphFullContext
+	string uri = 1;
+	string symbol_name = 2;
+	repeated LspSubgraphPosition positions = 3;
+	repeated LspSubgraphContextItem context_items = 4;
+	float score = 5;
+}
+enum FSUploadErrorType { // .aiserver.v1.FSUploadErrorType
+	FS_UPLOAD_ERROR_TYPE_UNSPECIFIED = 0;
+	FS_UPLOAD_ERROR_TYPE_NON_EXISTANT = 1;
+	FS_UPLOAD_ERROR_TYPE_HASH_MISMATCH = 2;
+}
+enum FSSyncErrorType { // .aiserver.v1.FSSyncErrorType
+	FS_SYNC_ERROR_TYPE_UNSPECIFIED = 0;
+	FS_SYNC_ERROR_TYPE_NON_EXISTANT = 1;
+	FS_SYNC_ERROR_TYPE_HASH_MISMATCH = 2;
+}
+message FSUploadFileRequest { // .aiserver.v1.FSUploadFileRequest
+	string uuid = 1;
+	string relative_workspace_path = 2;
+	string contents = 3;
+	int32 model_version = 4;
+	optional string sha256_hash = 5;
+}
+message FSUploadFileResponse { // .aiserver.v1.FSUploadFileResponse
+	FSUploadErrorType error = 1;
+}
+message FilesyncUpdateWithModelVersion { // .aiserver.v1.FilesyncUpdateWithModelVersion
+	int32 model_version = 1;
+	string relative_workspace_path = 2;
+	repeated SingleUpdateRequest updates = 3;
+	int32 expected_file_length = 4;
+}
+message SingleUpdateRequest { // .aiserver.v1.SingleUpdateRequest
+	int32 start_position = 1;
+	int32 end_position = 2;
+	int32 change_length = 3;
+	string replaced_string = 4;
+	SimpleRange range = 5;
+}
+message FSSyncFileRequest { // .aiserver.v1.FSSyncFileRequest
+	string uuid = 1;
+	string relative_workspace_path = 2;
+	int32 model_version = 3;
+	repeated FilesyncUpdateWithModelVersion filesync_updates = 4;
+	string sha256_hash = 5;
+}
+message FSSyncFileResponse { // .aiserver.v1.FSSyncFileResponse
+	FSSyncErrorType error = 1;
+}
+message CodeResult { // .aiserver.v1.CodeResult
+	CodeBlock code_block = 1;
+	float score = 2;
+}
+message CppIntentInfo { // .aiserver.v1.CppIntentInfo
+	string source = 1;
+}
+message LspSuggestion { // .aiserver.v1.LspSuggestion
+	string label = 1;
+}
+message LspSuggestedItems { // .aiserver.v1.LspSuggestedItems
+	repeated LspSuggestion suggestions = 1;
+}
+message StreamCppRequest { // .aiserver.v1.StreamCppRequest
+	enum ControlToken { // .aiserver.v1.StreamCppRequest.ControlToken
+		CONTROL_TOKEN_UNSPECIFIED = 0;
+		CONTROL_TOKEN_QUIET = 1;
+		CONTROL_TOKEN_LOUD = 2;
+		CONTROL_TOKEN_OP = 3;
+	}
+	CurrentFileInfo current_file = 1;
+	repeated string diff_history = 2;
+	optional string model_name = 3;
+	optional LinterErrors linter_errors = 4;
+	repeated CppContextItem context_items = 13;
+	repeated string diff_history_keys = 5;
+	optional bool give_debug_output = 6;
+	repeated CppFileDiffHistory file_diff_histories = 7;
+	repeated CppFileDiffHistory merged_diff_histories = 8;
+	repeated BlockDiffPatch block_diff_patches = 9;
+	optional bool is_nightly = 10;
+	optional bool is_debug = 11;
+	optional bool immediately_ack = 12;
+	optional bool enable_more_context = 17;
+	repeated CppParameterHint parameter_hints = 14;
+	repeated LspSubgraphFullContext lsp_contexts = 15;
+	optional CppIntentInfo cpp_intent_info = 16;
+	optional string workspace_id = 18;
+	repeated AdditionalFile additional_files = 19;
+	optional ControlToken control_token = 20;
+	optional double client_time = 21;
+	repeated FilesyncUpdateWithModelVersion filesync_updates = 22;
+	double time_since_request_start = 23;
+	double time_at_request_send = 24;
+	optional double client_timezone_offset = 25;
+	optional LspSuggestedItems lsp_suggested_items = 26;
+	optional bool supports_cpt = 27;
+	optional bool supports_crlf_cpt = 28;
+	repeated CodeResult code_results = 29;
+}
+message StreamCppResponse { // .aiserver.v1.StreamCppResponse
+	message CursorPredictionTarget { // .aiserver.v1.StreamCppResponse.CursorPredictionTarget
+		string relative_path = 1;
+		int32 line_number_one_indexed = 2;
+		string expected_content = 3;
+		bool should_retrigger_cpp = 4;
+	}
+	message ModelInfo { // .aiserver.v1.StreamCppResponse.ModelInfo
+		bool is_fused_cursor_prediction_model = 1;
+		bool is_multidiff_model = 2;
+	}
+	string text = 1;
+	optional int32 suggestion_start_line = 2;
+	optional int32 suggestion_confidence = 3;
+	optional bool done_stream = 4;
+	optional string debug_model_output = 5;
+	optional string debug_model_input = 6;
+	optional string debug_stream_time = 7;
+	optional string debug_total_time = 8;
+	optional string debug_ttft_time = 9;
+	optional string debug_server_timing = 10;
+	optional LineRange range_to_replace = 11;
+	optional CursorPredictionTarget cursor_prediction_target = 12;
+	optional bool done_edit = 13;
+	optional ModelInfo model_info = 14;
+	optional bool begin_edit = 15;
+	optional bool should_remove_leading_eol = 16;
+	optional string binding_id = 17;
+}
+message CppConfigRequest { // .aiserver.v1.CppConfigRequest
+	optional bool is_nightly = 1;
+	string model = 2;
+	optional bool supports_cpt = 3;
+}
+message CppConfigResponse { // .aiserver.v1.CppConfigResponse
+	enum Heuristic { // .aiserver.v1.CppConfigResponse.Heuristic
+		HEURISTIC_UNSPECIFIED = 0;
+		HEURISTIC_LOTS_OF_ADDED_TEXT = 1;
+		HEURISTIC_DUPLICATING_LINE_AFTER_SUGGESTION = 2;
+		HEURISTIC_DUPLICATING_MULTIPLE_LINES_AFTER_SUGGESTION = 3;
+		HEURISTIC_REVERTING_USER_CHANGE = 4;
+		HEURISTIC_OUTPUT_EXTENDS_BEYOND_RANGE_AND_IS_REPEATED = 5;
+		HEURISTIC_SUGGESTING_RECENTLY_REJECTED_EDIT = 6;
+	}
+	message ImportPredictionConfig { // .aiserver.v1.CppConfigResponse.ImportPredictionConfig
+		bool is_disabled_by_backend = 1;
+		bool should_turn_on_automatically = 2;
+		bool python_enabled = 3;
+	}
+	message MergeBehavior { // .aiserver.v1.CppConfigResponse.MergeBehavior
+		string type = 1;
+		optional int32 limit = 2;
+		optional int32 radius = 3;
+	}
+	message RecentlyRejectedEditThresholds { // .aiserver.v1.CppConfigResponse.RecentlyRejectedEditThresholds
+		int32 hard_reject_threshold = 1;
+		int32 soft_reject_threshold = 2;
+	}
+	message SuggestionHintConfig { // .aiserver.v1.CppConfigResponse.SuggestionHintConfig
+		repeated string important_lsp_extensions = 1;
+		repeated string enabled_for_path_extensions = 2;
+	}
+	optional int32 above_radius = 1;
+	optional int32 below_radius = 2;
+	optional MergeBehavior merge_behavior = 4;
+	optional bool is_on = 5;
+	optional bool is_ghost_text = 6;
+	optional bool should_let_user_enable_cpp_even_if_not_pro = 7;
+	repeated Heuristic heuristics = 8;
+	repeated string exclude_recently_viewed_files_patterns = 9;
+	bool enable_rvf_tracking = 10;
+	int32 global_debounce_duration_millis = 11;
+	int32 client_debounce_duration_millis = 12;
+	string cpp_url = 13;
+	bool use_whitespace_diff_history = 14;
+	ImportPredictionConfig import_prediction_config = 15;
+	bool enable_filesync_debounce_skipping = 16;
+	float check_filesync_hash_percent = 17;
+	string geo_cpp_backend_url = 18;
+	optional RecentlyRejectedEditThresholds recently_rejected_edit_thresholds = 19;
+	bool is_fused_cursor_prediction_model = 20;
+	bool include_unchanged_lines = 21;
+	bool should_fetch_rvf_text = 22;
+	optional int32 max_number_of_cleared_suggestions_since_last_accept = 23;
+	optional SuggestionHintConfig suggestion_hint_config = 24;
+	bool allows_tab_chunks = 25;
+	optional int32 tab_context_refresh_debounce_ms = 26;
+	optional int32 tab_context_refresh_editor_change_debounce_ms = 27;
+}
+message AdditionalFile { // .aiserver.v1.AdditionalFile
+	string relative_workspace_path = 1;
+	bool is_open = 2;
+	repeated string visible_range_content = 3;
+	optional double last_viewed_at = 4;
+	repeated int32 start_line_number_one_indexed = 5;
+	repeated LineRange visible_ranges = 6;
+}
+message AvailableCppModelsResponse { // .aiserver.v1.AvailableCppModelsResponse
+	repeated string models = 1;
+	optional string default_model = 2;
+}
+message CppFileDiffHistory { // .aiserver.v1.CppFileDiffHistory
+	string file_name = 1;
+	repeated string diff_history = 2;
+	repeated double diff_history_timestamps = 3;
+}
+message CppContextItem { // .aiserver.v1.CppContextItem
+	string contents = 1;
+	optional string symbol = 2;
+	string relative_workspace_path = 3;
+	float score = 4;
+}
+message CppParameterHint { // .aiserver.v1.CppParameterHint
+	string label = 1;
+	optional string documentation = 2;
+}
+message IRange { // .aiserver.v1.IRange
+	int32 start_line_number = 1;
+	int32 start_column = 2;
+	int32 end_line_number = 3;
+	int32 end_column = 4;
+}
+message BlockDiffPatch { // .aiserver.v1.BlockDiffPatch
+	message Change { // .aiserver.v1.BlockDiffPatch.Change
+		string text = 1;
+		IRange range = 2;
+	}
+	message ModelWindow { // .aiserver.v1.BlockDiffPatch.ModelWindow
+		repeated string lines = 1;
+		int32 start_line_number = 2;
+		int32 end_line_number = 3;
+	}
+	ModelWindow start_model_window = 1;
+	repeated Change changes = 3;
+	string relative_path = 4;
+	string model_uuid = 7;
+	int32 start_from_change_index = 5;
+}
+enum ClientSideToolV2 { // .aiserver.v1.ClientSideToolV2
+	CLIENT_SIDE_TOOL_V2_UNSPECIFIED = 0;
+	CLIENT_SIDE_TOOL_V2_READ_SEMSEARCH_FILES = 1;
+	CLIENT_SIDE_TOOL_V2_RIPGREP_SEARCH = 3;
+	CLIENT_SIDE_TOOL_V2_READ_FILE = 5;
+	CLIENT_SIDE_TOOL_V2_LIST_DIR = 6;
+	CLIENT_SIDE_TOOL_V2_EDIT_FILE = 7;
+	CLIENT_SIDE_TOOL_V2_FILE_SEARCH = 8;
+	CLIENT_SIDE_TOOL_V2_SEMANTIC_SEARCH_FULL = 9;
+	CLIENT_SIDE_TOOL_V2_DELETE_FILE = 11;
+	CLIENT_SIDE_TOOL_V2_REAPPLY = 12;
+	CLIENT_SIDE_TOOL_V2_RUN_TERMINAL_COMMAND_V2 = 15;
+	CLIENT_SIDE_TOOL_V2_FETCH_RULES = 16;
+	CLIENT_SIDE_TOOL_V2_WEB_SEARCH = 18;
+	CLIENT_SIDE_TOOL_V2_MCP = 19;
+	CLIENT_SIDE_TOOL_V2_SEARCH_SYMBOLS = 23;
+	CLIENT_SIDE_TOOL_V2_BACKGROUND_COMPOSER_FOLLOWUP = 24;
+	CLIENT_SIDE_TOOL_V2_KNOWLEDGE_BASE = 25;
+	CLIENT_SIDE_TOOL_V2_FETCH_PULL_REQUEST = 26;
+	CLIENT_SIDE_TOOL_V2_DEEP_SEARCH = 27;
+	CLIENT_SIDE_TOOL_V2_CREATE_DIAGRAM = 28;
+	CLIENT_SIDE_TOOL_V2_FIX_LINTS = 29;
+	CLIENT_SIDE_TOOL_V2_READ_LINTS = 30;
+	CLIENT_SIDE_TOOL_V2_GO_TO_DEFINITION = 31;
+	CLIENT_SIDE_TOOL_V2_TASK = 32;
+	CLIENT_SIDE_TOOL_V2_AWAIT_TASK = 33;
+	CLIENT_SIDE_TOOL_V2_TODO_READ = 34;
+	CLIENT_SIDE_TOOL_V2_TODO_WRITE = 35;
+	CLIENT_SIDE_TOOL_V2_EDIT_FILE_V2 = 38;
+	CLIENT_SIDE_TOOL_V2_LIST_DIR_V2 = 39;
+	CLIENT_SIDE_TOOL_V2_READ_FILE_V2 = 40;
+	CLIENT_SIDE_TOOL_V2_RIPGREP_RAW_SEARCH = 41;
+	CLIENT_SIDE_TOOL_V2_GLOB_FILE_SEARCH = 42;
+	CLIENT_SIDE_TOOL_V2_CREATE_PLAN = 43;
+	CLIENT_SIDE_TOOL_V2_LIST_MCP_RESOURCES = 44;
+	CLIENT_SIDE_TOOL_V2_READ_MCP_RESOURCE = 45;
+}
+message ToolResultError { // .aiserver.v1.ToolResultError
+	message EditFileError { // .aiserver.v1.ToolResultError.EditFileError
+		int32 num_lines_in_file_before_edit = 1;
+	}
+	message SearchReplaceError { // .aiserver.v1.ToolResultError.SearchReplaceError
+		int32 num_lines_in_file_before_edit = 1;
+	}
+	string client_visible_error_message = 1;
+	string model_visible_error_message = 2;
+	optional string actual_error_message_only_send_from_client_to_server_never_the_other_way_around_because_that_may_be_a_security_risk = 3;
+	oneof error_details {
+		EditFileError edit_file_error_details = 5;
+		SearchReplaceError search_replace_error_details = 6;
+	}
+}
+message ClientSideToolV2Call { // .aiserver.v1.ClientSideToolV2Call
+	ClientSideToolV2 tool = 1;
+	oneof params {
+		MCPParams mcp_params = 27;
+	}
+	string tool_call_id = 3;
+	string name = 9;
+	bool is_streaming = 14;
+	bool is_last_message = 15;
+	string raw_args = 10;
+	optional uint32 tool_index = 48;
+	optional string model_call_id = 49;
+}
+message ClientSideToolV2Result { // .aiserver.v1.ClientSideToolV2Result
+	ClientSideToolV2 tool = 1;
+	oneof result {
+		MCPResult mcp_result = 28;
+	}
+	string tool_call_id = 35;
+	optional ToolResultError error = 8;
+	optional string model_call_id = 48;
+	optional uint32 tool_index = 49;
+}
+message MCPParams { // .aiserver.v1.MCPParams
+	message Tool { // .aiserver.v1.MCPParams.Tool
+		string name = 1;
+		string description = 2;
+		string parameters = 3;
+		string server_name = 4;
+	}
+	repeated Tool tools = 1;
+}
+message MCPResult { // .aiserver.v1.MCPResult
+	string selected_tool = 1;
+	string result = 2;
+}
+message StreamUnifiedChatRequestWithTools { // .aiserver.v1.StreamUnifiedChatRequestWithTools
+	oneof request {
+		StreamUnifiedChatRequest stream_unified_chat_request = 1;
+		ClientSideToolV2Result client_side_tool_v2_result = 2;
+	}
+}
+message StreamUnifiedChatResponseWithTools { // .aiserver.v1.StreamUnifiedChatResponseWithTools
+	oneof response {
+		ClientSideToolV2Call client_side_tool_v2_call = 1;
+		StreamUnifiedChatResponse stream_unified_chat_response = 2;
+	}
+}
+message WebCitation { // .aiserver.v1.WebCitation
+	repeated WebReference references = 1;
+}
+message WebReference { // .aiserver.v1.WebReference
+	string title = 2;
+	string url = 1;
+	string chunk = 3;
+}
+message StreamUnifiedChatRequest { // .aiserver.v1.StreamUnifiedChatRequest
+	enum UnifiedMode { // .aiserver.v1.StreamUnifiedChatRequest.UnifiedMode
+		UNIFIED_MODE_UNSPECIFIED = 0;
+		UNIFIED_MODE_CHAT = 1;
+		UNIFIED_MODE_AGENT = 2;
+		UNIFIED_MODE_EDIT = 3;
+		UNIFIED_MODE_CUSTOM = 4;
+		UNIFIED_MODE_PLAN = 5;
+	}
+	enum ThinkingLevel { // .aiserver.v1.StreamUnifiedChatRequest.ThinkingLevel
+		THINKING_LEVEL_UNSPECIFIED = 0;
+		THINKING_LEVEL_MEDIUM = 1;
+		THINKING_LEVEL_HIGH = 2;
+	}
+	repeated ConversationMessage conversation = 1;
+	repeated ConversationMessageHeader full_conversation_headers_only = 30;
+	ExplicitContext explicit_context = 3;
+	ModelDetails model_details = 5;
+	optional string use_web = 8;
+	repeated ComposerExternalLink external_links = 9;
+	optional bool should_cache = 13;
+	CurrentFileInfo current_file = 15;
+	optional bool use_new_compression_scheme = 19;
+	bool is_chat = 22;
+	string conversation_id = 23;
+	EnvironmentInfo environment_info = 26;
+	bool is_agentic = 27;
+	repeated ClientSideToolV2 supported_tools = 29;
+	repeated MCPParams.Tool mcp_tools = 34;
+	optional bool use_full_inputs_context = 35;
+	optional bool allow_model_fallbacks = 37;
+	optional UnifiedMode unified_mode = 46;
+	optional bool should_disable_tools = 48;
+	optional ThinkingLevel thinking_level = 49;
+	optional bool uses_rules = 51;
+	optional string unified_mode_name = 54;
+}
+message StreamUnifiedChatResponse { // .aiserver.v1.StreamUnifiedChatResponse
+	string text = 1;
+	optional WebCitation web_citation = 11;
+	optional ConversationMessage.Thinking thinking = 25;
+}
+message ConversationMessageHeader { // .aiserver.v1.ConversationMessageHeader
+	string bubble_id = 1;
+	optional string server_bubble_id = 2;
+	ConversationMessage.MessageType type = 3;
+}
+message ConversationMessage { // .aiserver.v1.ConversationMessage
+	enum MessageType { // .aiserver.v1.ConversationMessage.MessageType
+		MESSAGE_TYPE_UNSPECIFIED = 0;
+		MESSAGE_TYPE_HUMAN = 1;
+		MESSAGE_TYPE_AI = 2;
+	}
+	message ToolResult { // .aiserver.v1.ConversationMessage.ToolResult
+		string tool_call_id = 1;
+		string tool_name = 2;
+		uint32 tool_index = 3;
+		string raw_args = 5;
+		ClientSideToolV2Result result = 8;
+		optional ToolResultError error = 9;
+		repeated ImageProto images = 10;
+		optional ClientSideToolV2Call tool_call = 11;
+	}
+	message Thinking { // .aiserver.v1.ConversationMessage.Thinking
+		string text = 1;
+		string signature = 2;
+		string redacted_thinking = 3;
+	}
+	string text = 1;
+	MessageType type = 2;
+	repeated ImageProto images = 10;
+	string bubble_id = 13;
+	repeated ToolResult tool_results = 18;
+	bool is_agentic = 29;
+	repeated WebReference web_references = 36;
+	optional Thinking thinking = 45;
+	optional StreamUnifiedChatRequest.UnifiedMode unified_mode = 47;
+	repeated ClientSideToolV2 supported_tools = 51;
+	repeated ComposerExternalLink external_links = 62;
+	optional bool use_web = 63;
+}
+message GetPromptDryRunResponse { // .aiserver.v1.GetPromptDryRunResponse
+	message TokenCount { // .aiserver.v1.GetPromptDryRunResponse.TokenCount
+		optional int32 num_tokens = 2;
+	}
+	TokenCount user_message_token_count = 4;
+	TokenCount full_conversation_token_count = 5;
+}
+message AvailableModelsRequest { // .aiserver.v1.AvailableModelsRequest
+	bool is_nightly = 1;
+	bool include_long_context_models = 2;
+	bool exclude_max_named_models = 3;
+	repeated string additional_model_names = 4;
+}
+message AvailableModelsResponse { // .aiserver.v1.AvailableModelsResponse
+	enum DegradationStatus { // .aiserver.v1.AvailableModelsResponse.DegradationStatus
+		DEGRADATION_STATUS_UNSPECIFIED = 0;
+		DEGRADATION_STATUS_DEGRADED = 1;
+		DEGRADATION_STATUS_DISABLED = 2;
+	}
+	message TooltipData { // .aiserver.v1.AvailableModelsResponse.TooltipData
+		string primary_text = 1;
+		string secondary_text = 2;
+		bool secondary_warning_text = 3;
+		string icon = 4;
+		string tertiary_text = 5;
+		string tertiary_text_url = 6;
+		optional string markdown_content = 7;
+	}
+	message AvailableModel { // .aiserver.v1.AvailableModelsResponse.AvailableModel
+		string name = 1;
+		bool default_on = 2;
+		optional bool is_long_context_only = 3;
+		optional bool is_chat_only = 4;
+		optional bool supports_agent = 5;
+		optional DegradationStatus degradation_status = 6;
+		optional double price = 7;
+		optional TooltipData tooltip_data = 8;
+		optional TooltipData tooltip_data_for_max_mode = 20;
+		optional bool supports_thinking = 9;
+		optional bool supports_images = 10;
+		optional bool supports_auto_context = 11;
+		optional int32 auto_context_max_tokens = 12;
+		optional int32 auto_context_extended_max_tokens = 13;
+		optional bool supports_max_mode = 14;
+		optional bool supports_non_max_mode = 19;
+		optional int32 context_token_limit = 15;
+		optional int32 context_token_limit_for_max_mode = 16;
+		optional string client_display_name = 17;
+		optional string server_model_name = 18;
+		optional bool is_recommended_for_background_composer = 21;
+		optional bool supports_plan_mode = 22;
+	}
+	repeated AvailableModel models = 2;
+}
+message GetServerConfigResponse { // .aiserver.v1.GetServerConfigResponse
+	string config_version = 6;
+}

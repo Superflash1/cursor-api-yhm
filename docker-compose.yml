@@ -1,0 +1,15 @@
+services:
+  cursor-api:
+    build: .
+    container_name: cursor-api
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    env_file:
+      - .env
+    volumes:
+      - cursor-api-data:/app/data
+
+volumes:
+  cursor-api-data:
+

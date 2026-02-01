@@ -1,0 +1,16 @@
+# reorder_imports = false
+# reorder_modules = false
+
+style_edition = "2024"
+use_small_heuristics = "Max"
+# merge_derives = false
+# group_imports = "Preserve"
+imports_granularity = "Crate"
+group_imports = "One"
+# imports_granularity = "One"
+use_field_init_shorthand = true
+
+#unstable_features = true
+
+fn_single_line = true
+where_single_line = true
