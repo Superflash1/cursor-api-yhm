@@ -91,7 +91,7 @@ impl TokenManager {
             alias = Cow::Owned(generate_unnamed_alias(id));
         }
 
-        if self.alias_map.contains_key(alias.as_ref()) {
+        if self.alias_map.contains_key(&*alias) {
             return Err(TokenError::AliasExists);
         }
 
@@ -173,7 +173,7 @@ impl TokenManager {
         if alias == UNNAMED || alias.starts_with(UNNAMED_PATTERN) {
             alias = Cow::Owned(generate_unnamed_alias(id));
         }
-        if self.alias_map.contains_key(alias.as_ref()) {
+        if self.alias_map.contains_key(&*alias) {
             return Err(TokenError::AliasExists);
         }
 
