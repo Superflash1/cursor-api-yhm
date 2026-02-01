@@ -6,13 +6,46 @@ services:
     user: "0:0"
     ports:
       - "3003:3000"
-    env_file:
-      - .env
     environment:
-      - FRONTEND_PATH=/app/static
+      # ========== 基础配置 ==========
+      - AUTH_TOKEN=supergirl1                    # 管理密码/API认证令牌（必填）
+      - PORT=3000                                # 服务端口（容器内）
+      - GENERAL_TIMEZONE=Asia/Shanghai           # 时区
+      - TZ=Asia/Shanghai                         # 系统时区
+      
+      # ========== 前端配置 ==========
+      - FRONTEND_PATH=/app/frontend.zip          # 前端资源路径
+      
+      # ========== 功能开关 ==========
+      - DEBUG=false                              # 调试模式
+      - ENABLE_SLOW_POOL=false                   # 启用慢速池
+      - ENABLE_LONG_CONTEXT=false                # 启用长上下文
+      - DYNAMIC_KEY=false                        # 启用动态密钥
+      - INCLUDE_WEB_REFERENCES=false             # 包含网页引用
+      - REAL_USAGE=true                          # 真实用量统计
+      
+      # ========== 图像处理 ==========
+      # VISION_ABILITY: none/base64/all
+      - VISION_ABILITY=all                       # 图像处理能力
+      
+      # ========== 日志配置 ==========
+      - REQUEST_LOGS_LIMIT=100                   # 请求日志条数限制
+      
+      # ========== 数据目录 ==========
+      - DATA_DIR=/app/data                       # 数据目录
+      - LOGS_DIR=/app/data/logs                  # 日志目录
+      
+      # ========== 网络配置 ==========
+      # - NTP_SERVERS=ntp.aliyun.com             # NTP服务器（可选）
+      # - SERVICE_TIMEOUT=600                    # 服务超时（秒）
+      # - TCP_KEEPALIVE=60                       # TCP保活（秒）
+      
+      # ========== 共享Token（可选）==========
+      - SHARED_TOKEN=sk-supergirl1         # 共享Token供他人使用
+      
     volumes:
       - cursor-api-data:/app/data
-      - ./static:/app/static:ro
+      - ./frontend.zip:/app/frontend.zip:ro
 
 volumes:
   cursor-api-data:
